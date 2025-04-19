@@ -1,0 +1,28 @@
+name: Orchestrator
+## https://chatgpt.com/share/6800234d-7730-8002-92d4-74e8d1640790:
+### Orchestrator Workflow
+#
+#  该工作流用于：
+#- 手动触发部署流程（通过 workflow_dispatch）
+#- 首先执行 golangci-lint 进行代码静态分析
+#- 如果通过，则调用部署流程 cd-development.yaml
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Deployment build mode (e.g., 'development', 'staging', 'production')"
+        required: true
+        default: "development"
+        type: string
+jobs:
+  lint-check:
+    uses: ./.github/workflows/lint.yaml
+    secrets: inherit
+  deploy-if-lint-success:
+    needs: lint-check
+    if: ${{ needs.lint-check.result == 'success' }}
+    uses: ./.github/workflows/cd-development.yaml
+    with:
+      mode: ${{ inputs.mode }}
+    secrets: inherit

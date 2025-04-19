@@ -1,0 +1,91 @@
+name: CD - FrontWeb - Development Environment
+on:
+  workflow_call:
+    inputs:
+      mode:
+        required: true
+        type: string
+        description: "Deployment build mode (e.g., 'development', 'staging', 'production')"
+    secrets:
+      UAT_REMOTE_SSH_KEY:
+        required: true
+      UAT_REMOTE_HOST:
+        required: true
+      UAT_REMOTE_USER:
+        required: true
+      TELEGRAM_BOT_TOKEN:
+        required: true
+      TELEGRAM_CHAT_ID:
+        required: true
+jobs:
+  "build-deploy":
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Cache pnpm modules
+        uses: actions/cache@v4
+        with:
+          path: ~/.pnpm-store # 缓存 pnpm 的依赖
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }} # 基于 pnpm-lock.yaml 文件哈希生成缓存键
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+      - name: Install PNPM 10
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm" # 启用 pnpm 缓存
+      # ------------------------------
+      #  安装依赖（严格模式）
+      # ------------------------------
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      # ------------------------------
+      # 生产构建（对齐 package.json 脚本）
+      # ------------------------------
+      - name: "Build with Vite (mode: ${{ inputs.mode }})"
+        run: |
+          echo "🚧 Building with mode: ${{ inputs.mode }}"
+          pnpm run build -- --mode ${{ inputs.mode }}
+      # ------------------------------
+      # 构建产物验证
+      # ------------------------------
+      - name: Verify build
+        run: |
+          [ -f dist/index.html ] || { echo "❌ Missing index.html"; exit 1; }
+          echo "✅ Build validated"
+      # >>>>  ssh deploy start >>>>
+      - name: Upload to Deploy Server
+        uses: easingthemes/ssh-deploy@v5.1.0
+        with:
+          SSH_PRIVATE_KEY: ${{ secrets.UAT_REMOTE_SSH_KEY }}
+          ARGS: "-rltgoDzvOc --delete"
+          SOURCE: "dist/"
+          REMOTE_HOST: ${{ secrets.UAT_REMOTE_HOST }}
+          REMOTE_USER: ${{ secrets.UAT_REMOTE_USER }}
+          TARGET: "/var/www/web/"
+          EXCLUDE: "/dist/, /node_modules/"
+      # <<<<  ssh deploy end <<<<
+      - name: Get commit message
+        id: get_commit_message
+        run: echo "LATEST_COMMIT_MESSAGE=$(git log -1 --pretty=%B)" >> $GITHUB_OUTPUT
+      - name: Send Telegram Notification
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GITHUB_WORKFLOW: ${{ github.workflow }} # CI 工作流名称
+          GITHUB_REF: ${{ github.ref }} # 触发 CI 的 Git 分支
+          GITHUB_SHA: ${{ github.sha }} # 当前提交的 Git SHA
+          GITHUB_ACTOR: ${{ github.actor }} # 触发 CI 的用户
+          GITHUB_RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }} # 运行详情链接
+          JOB_STATUS: ${{ job.status || 'unknown' }} # 任务状态（成功/失败）
+          LATEST_COMMIT_MESSAGE: ${{ steps.get_commit_message.outputs.LATEST_COMMIT_MESSAGE }}
+        run: |
+          curl --location "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+          --form "chat_id=${TELEGRAM_CHAT_ID}" \
+          --form "parse_mode=Markdown" \
+          --form "text=📢 *GitHub 作业通知*  🔨 *工作流:* ${GITHUB_WORKFLOW} 🔗 *作业地址:* ${GITHUB_RUN_URL} 📦 *分支:* ${GITHUB_REF} Commit: `${GITHUB_SHA}`  👤 *触发者:* ${GITHUB_ACTOR}  📝 *提交消息:* ${LATEST_COMMIT_MESSAGE}  🚦 *状态:* ${JOB_STATUS}"

@@ -1,0 +1,22 @@
+{
+    "instructions": [
+        "Use React 18 functional components throughout the project, utilizing Hooks for managing state and lifecycle.",
+        "Employ React Router v7 to handle navigation with route-based code splitting using React.lazy.",
+        "Integrate TanStack Query v5 for server-side state management and consistent data-fetching.",
+        "Implement TailwindCSS for styling, ensuring responsive design from mobile to desktop.",
+        "Leverage AntDesign v5 for UI components, complemented by custom UI elements from Shadcn-UI.",
+        "Use Zustand for global state management, especially for shared state across various components.",
+        "Configure react-i18n for internationalization, managing translations under the src/i18n directory.",
+        "Optimize styling with PostCSS, incorporating plugins such as autoprefixer and nesting.",
+        "Make use of Axios for API requests, ensuring results are formatted consistently using a custom axios instance.",
+        "Utilize Day.js for date and time manipulation in a lightweight manner within your components.",
+        "Implement animations using Motion v11 to provide a smooth, interactive UI experience.",
+        "Use vite-plugin-svg-icons for managing and optimizing SVG asset usage within Vite.",
+        "Incorporate react-icons v5 for lightweight and straightforward icon implementation across your UI.",
+        "Apply rigorous linting and formatting rules using ESLint and Prettier to maintain code quality.",
+        "Ensure comprehensive testing with Jest and React Testing Library for unit and integration tests.",
+        "Adopt strategies like code splitting and lazy loading for non-critical components to enhance performance.",
+        "Employ ESLint and Prettier configurations to enforce coding standards and structure.",
+        "Implement error boundaries to catch and display error messages gracefully in UI components."
+    ]
+}

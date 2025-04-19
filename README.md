@@ -1,54 +1,28 @@
-# React + TypeScript + Vite
+# React v18  + Vite v6 + + tailwind v4 +  zustand v5 + tanstack/query v5 + 
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-Currently, two official plugins are available:
+tailwind is css
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+tanstack/query is async query/mutation 
+ 
+zustand is state management
 
-## Expanding the ESLint configuration
+biome v1.9.4 is linter for js/ts
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+pre-commit hook is to hook linters
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+// zustand 用法
+// tanstack query用法
+// react route 用法
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+// cd ssh 部署 构建
+[text](.github/workflows/cd-development.yaml)
+// yaml 和 biome.js 格式化
+[text](.github/workflows/lint.yaml) 
+// 调度上面 2 个文件
+[text](.github/workflows/orchestrator.yaml)
+关于 github  action 如何调度 workflow_call workflow_on result conclusion
+https://chatgpt.com/share/6800e4bd-2498-8002-83ab-dba6dd87b8d2
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+https://{env}.api.dentistease.com/{serviceName}/{version}/api
+env: dev,uat,staging,没有 prod 省略

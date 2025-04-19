@@ -1,0 +1,36 @@
+name: Lint Workflow
+#
+#on:
+#  pull_request:
+#    branches:
+#      - master
+#  push:
+#    branches:
+#      - master
+
+on:
+  workflow_call: # 被 orchestrator 调用
+  # outputs:
+  #   result:
+  #     description: "是否通过 lint"
+  #     value: ${{ jobs.quality.conclusion }}
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Biome
+        uses: biomejs/setup-biome@v2.5.0
+        with:
+          version: "1.9.4"
+      - name: Run Biome
+        run: |
+          set -e
+          biome ci src
+      - name: Run yaml fmt
+        uses: yk-lab/yamlfmt-action@v1.0.0
+        with:
+          version: v0.16.0
+          dstar: true
+          path: "**/**/*.y{a,}ml"
