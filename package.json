@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "biome": "biome check --files-ignore-unknown=true --no-errors-on-unmatched --organize-imports-enabled=true --write src",
     "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "eslint-migrate": "biome migrate eslint"
   },
   "dependencies": {
     "react": "18.3.1",
